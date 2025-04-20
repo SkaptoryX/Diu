@@ -188,21 +188,6 @@ const activeCampus = ref('all');
 const isFiltering = ref(false);
 const animatingCards = ref(false);
 
-// Refactor animation handling to improve performance
-const animateCardsTransition = async () => {
-  // First fade out current cards
-  animatingCards.value = true;
-  
-  // Short delay to allow fade out
-  await new Promise(resolve => setTimeout(resolve, 250));
-  
-  // We set animation to false immediately after data update
-  // This ensures we don't wait for animation to complete before updating the UI
-  return () => {
-    animatingCards.value = false;
-  };
-};
-
 // Función para filtrar carreras según la búsqueda y filtros
 const filteredCareers = () => {
   let result = [...consolidatedCareers];
@@ -236,22 +221,40 @@ const filteredCareers = () => {
 const setActiveCategory = async (categorySlug) => {
   if (activeCategory.value === categorySlug) return;
   
-  const completeAnimation = await animateCardsTransition();
+  isFiltering.value = true;
+  animatingCards.value = true;
+  
+  // Pequeño delay para mostrar el estado de filtrado
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
   activeCategory.value = categorySlug;
   
-  // Delay just enough to let Vue update the DOM
+  // Esperar al siguiente ciclo de renderizado para que las cards estén listas
   await nextTick();
-  completeAnimation();
+  
+  // Finalizar la animación después de que todas las cards se hayan mostrado
+  setTimeout(() => {
+    animatingCards.value = false;
+    isFiltering.value = false;
+  }, 500);
 };
 
 const setActiveCampus = async (campusSlug) => {
   if (activeCampus.value === campusSlug) return;
   
-  const completeAnimation = await animateCardsTransition();
+  isFiltering.value = true;
+  animatingCards.value = true;
+  
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
   activeCampus.value = campusSlug;
   
   await nextTick();
-  completeAnimation();
+  
+  setTimeout(() => {
+    animatingCards.value = false;
+    isFiltering.value = false;
+  }, 500);
 };
 
 // Añade función para manejar clicks en las cards
@@ -280,7 +283,10 @@ const paginatedCareers = computed(() => {
 const goToPage = async (page) => {
   if (currentPage.value === page) return;
   
-  const completeAnimation = await animateCardsTransition();
+  animatingCards.value = true;
+  
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
   currentPage.value = page;
   
   const resultsArea = document.querySelector('.careers-grid');
@@ -289,12 +295,18 @@ const goToPage = async (page) => {
   }
   
   await nextTick();
-  completeAnimation();
+  
+  setTimeout(() => {
+    animatingCards.value = false;
+  }, 500);
 };
 
 const nextPage = async () => {
   if (currentPage.value < totalPages.value) {
-    const completeAnimation = await animateCardsTransition();
+    animatingCards.value = true;
+    
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     currentPage.value++;
     
     const resultsArea = document.querySelector('.careers-grid');
@@ -303,13 +315,19 @@ const nextPage = async () => {
     }
     
     await nextTick();
-    completeAnimation();
+    
+    setTimeout(() => {
+      animatingCards.value = false;
+    }, 500);
   }
 };
 
 const prevPage = async () => {
   if (currentPage.value > 1) {
-    const completeAnimation = await animateCardsTransition();
+    animatingCards.value = true;
+    
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     currentPage.value--;
     
     const resultsArea = document.querySelector('.careers-grid');
@@ -318,7 +336,10 @@ const prevPage = async () => {
     }
     
     await nextTick();
-    completeAnimation();
+    
+    setTimeout(() => {
+      animatingCards.value = false;
+    }, 500);
   }
 };
 
@@ -328,11 +349,17 @@ const handleSearchInput = (event) => {
   clearTimeout(searchTimeout);
   
   searchTimeout = setTimeout(async () => {
-    const completeAnimation = await animateCardsTransition();
+    isFiltering.value = true;
+    animatingCards.value = true;
+    
     searchQuery.value = event.target.value;
     
     await nextTick();
-    completeAnimation();
+    
+    setTimeout(() => {
+      animatingCards.value = false;
+      isFiltering.value = false;
+    }, 500);
   }, 300);
 };
 
@@ -521,7 +548,7 @@ watch([searchQuery, activeCategory, activeCampus], () => {
 .hero-banner {
   width: 100%;
   height: 200px;
-  background-image: url('https://www.usm.cl/assets/img/admision/carreras-cabecera.jpg');
+  background-image: url('https://petys.com/wp-content/uploads/2024/10/gatos-se-van-de-la-casa-1920x490pxok.webp');
   background-size: cover;
   background-position: center;
   position: relative;
@@ -535,7 +562,7 @@ watch([searchQuery, activeCategory, activeCampus], () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.13);
 }
 
 .banner-content {
@@ -695,7 +722,7 @@ watch([searchQuery, activeCategory, activeCampus], () => {
   border-radius: 0;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: transform 0.3s, box-shadow 0.3s, opacity 0.25s, transform 0.25s;
+  transition: transform 0.3s, box-shadow 0.3s, opacity 0.3s;
   height: 200px;
   position: relative;
   cursor: pointer;
@@ -705,8 +732,20 @@ watch([searchQuery, activeCategory, activeCampus], () => {
 
 .card-animating {
   opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+  transform: translateY(20px);
+  animation: cardAppear 0.5s forwards;
+  animation-delay: var(--animation-delay, 0ms);
+}
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .career-card:hover {
@@ -727,7 +766,7 @@ watch([searchQuery, activeCategory, activeCampus], () => {
 }
 
 /* Estilos para imágenes de muestra - en producción se reemplazarían por imágenes reales */
-.arquitectura { background-image: url('https://www.usm.cl/assets/img/admision/carreras/arquitectura.jpg'); }
+.arquitectura { background-image: url('https://petys.com/wp-content/uploads/2024/10/gatos-se-van-de-la-casa-1920x490pxok.webp'); }
 .construccion-civil { background-image: url('https://www.usm.cl/assets/img/admision/carreras/construccion-civil.jpg'); }
 .ingenieria-civil { background-image: url('https://www.usm.cl/assets/img/admision/carreras/ing-civil.jpg'); }
 .ingenieria-civil-ambiental { background-image: url('https://www.usm.cl/assets/img/admision/carreras/ing-civil-ambiental.jpg'); }
@@ -746,7 +785,7 @@ watch([searchQuery, activeCategory, activeCampus], () => {
   width: 100%;
   box-sizing: border-box;
   padding: 15px 12px 15px 15px;
-  background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.4) 75%, transparent);
+  background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.2) 75%, transparent);
   color: white;
   display: flex;
   flex-direction: column;

@@ -153,7 +153,7 @@
 }
 
 .pregrado-diurno {
-    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKhJ9vY-WJviH34cgDfbG2Hn_cBf0t5BBmaWrmH--NzBO3pjGP6hjV7pb8s958ug9K7p6iR-3vz6nlw7c4i5ZdMw');
+    background-image: url('https://petys.com/wp-content/uploads/2024/10/gatos-se-van-de-la-casa-1920x490pxok.webp');
 }
 
 .pregrado-vespertino {
@@ -169,7 +169,7 @@
 }
 
 .formacion-continua {
-    background-image: url('https://i.ytimg.com/vi/cBg8nu8jYp0/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLC71w8yZQ3Ses7ljGZ6N0QbN3Nuug');
+    background-image: url('https://i.ytimg.com/vi/cBg8nu8jYp0/hqdefault.jpg');
 }
 
 .card-label {
