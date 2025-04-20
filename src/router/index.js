@@ -8,7 +8,7 @@ import Doctorado from "../views/doctorado/index.vue";
 import FormacionContinua from "../views/formacion-continua/index.vue";
 
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHistory(),
     routes: [
         {
             path: '/',
@@ -44,6 +44,11 @@ const router = createRouter({
             path: '/formacion-continua',
             name: 'formacion-continua',
             component: FormacionContinua
+        },
+        // Ruta comodín para manejar rutas no encontradas
+        {
+            path: '/:pathMatch(.*)*',
+            redirect: '/'
         }
     ]
 })
